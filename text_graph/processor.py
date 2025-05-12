@@ -174,43 +174,54 @@ class TextProcessor:
 
     # -------------------- 随机游走 --------------------
 
+    # processor.py
     @staticmethod
     def random_walk(graph: TextGraph) -> List[str]:
         """带终止条件的随机游走"""
+        path = []  # 确保始终初始化列表
         if not graph.nodes:
-            return []
+            return path  # 返回空列表而非None
 
-        current = random.choice(list(graph.nodes))
-        path = [current]
-        visited_edges = set()
+        try:
+            current = random.choice(list(graph.nodes))
+            path = [current]
+            visited_edges = set()
 
-        while True:
-            edges = graph.get_edges(current)
-            if not edges:
-                break
-
-            # 按权重比例选择
-            total = sum(edges.values())
-            rand_val = random.uniform(0, total)
-            cumulative = 0
-            next_node = None
-
-            for node, weight in edges.items():
-                cumulative += weight
-                if rand_val <= cumulative:
-                    next_node = node
+            while True:
+                edges = graph.get_edges(current)
+                if not edges:
                     break
 
-            if not next_node:
-                break
+                total = sum(edges.values())
+                if total <= 0:  # 处理权重和为零的情况
+                    break
 
-            edge = (current, next_node)
-            if edge in visited_edges:
-                break
+                rand_val = random.uniform(0, total)
+                cumulative = 0
+                next_node = None
 
-            visited_edges.add(edge)
-            path.append(next_node)
-            current = next_node
+                for node, weight in edges.items():
+                    cumulative += weight
+                    if rand_val <= cumulative:
+                        next_node = node
+                        break
+
+                if not next_node:
+                    break
+
+                edge = (current, next_node)
+                if edge in visited_edges:
+                    break
+
+                visited_edges.add(edge)
+                path.append(next_node)
+                current = next_node
+
+        except Exception as e:
+            print(f"随机游走异常: {str(e)}")  # 调试日志
+            return path  # 返回当前路径
+
+        return path
     # -------------------- 新增绘图方法 --------------------
     @staticmethod
     def draw_graph(

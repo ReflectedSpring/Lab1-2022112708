@@ -103,6 +103,7 @@ def pagerank(node):
     except Exception as e:
         click.secho(f"计算失败: {str(e)}", fg='red')
 
+
 @cli.command()
 @click.option('-o', '--output', help="保存结果到文件")
 def walk(output):
@@ -110,7 +111,10 @@ def walk(output):
     graph = cli_manager.ensure_loaded()
     try:
         path = TextProcessor.random_walk(graph)
-        result = ' '.join(path)
+        if not isinstance(path, list):
+            raise ValueError("游走路径返回了无效类型")
+
+        result = ' '.join(path) if path else "空路径"
         if output:
             with open(output, 'w') as f:
                 f.write(result)
@@ -119,6 +123,8 @@ def walk(output):
             click.echo(f"游走路径: {result}")
     except Exception as e:
         click.secho(f"游走失败: {str(e)}", fg='red')
+        import traceback
+        traceback.print_exc()  # 打印完整堆栈
 
 @cli.command()
 @click.option('--format', type=click.Choice(['pdf', 'svg', 'eps']), default='pdf',
