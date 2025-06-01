@@ -1,0 +1,25 @@
+import pytest
+from src.graph import TextGraph
+from src.processor import TextProcessor
+
+@pytest.fixture
+def test_graph():
+    graph = TextGraph()
+    edges = [
+        ("A", "B"), ("A", "B"),  # A→B 权重2
+        ("B", "C"), ("B", "C"), ("B", "C"),  # B→C 权重3
+        ("A", "D"),  # A→D 权重1
+       # ("D", "C"),  # D→C 权重1（原为4，改为1使总权重2）
+        # 添加孤立节点X和Y
+        ("X", "X"),  # 自环边，确保X被加入节点，但无出边
+    ]
+    for src, dst in edges:
+        graph.add_edge(src, dst)
+    return graph
+
+
+def test_case5_dest_not_exist(test_graph):
+    """测试用例5: 目标节点不存在"""
+    with pytest.raises(ValueError) as e:
+        TextProcessor.calc_shortest_path(test_graph, "A", "Nonexist")
+    assert "目标节点 'nonexist' 不存在" in str(e.value).lower()
